@@ -1,0 +1,16 @@
+<div class="list-group">
+  <div class="list-group-item">
+    <div class="list-group-item-heading">
+      {{plural model.countActive
+               "aucun service sélectionné"
+               "un service sélectionné"
+               "services sélectionnés"}}
+    </div>
+  </div>
+  {{#each model.sercives as |service|}}
+    <div class="list-group-item" {{action "toogleActive" sevice}}>
+      {{ service.name}}
+      <span class="label label-default">{{service.price}}</span>
+    </div>
+  {{/each}}
+</div>

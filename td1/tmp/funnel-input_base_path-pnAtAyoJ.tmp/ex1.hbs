@@ -1,0 +1,10 @@
+<h4>Note :</h4>
+{{textarea value = model.content maxlength=model.MAX class ="form-control"}}
+
+<button class ="btn btn-primary" {{action "save" model}}>Enregistrer</button>
+<button class ="btn btn-primary" {{action "clear" model}}>Effacer</button>
+
+<div class="alert {{model.style}}">{{model.size}} caractères restants</div>
+{{#if model.alertVisible}}
+  <div class="alert alert-info">{{model.info}}</div>
+{{/if}}
