@@ -917,8 +917,60 @@ define('td1/helpers/plural', ['exports'], function (exports) {
     value: true
   });
   exports.plural = plural;
+
+  var _slicedToArray = function () {
+    function sliceIterator(arr, i) {
+      var _arr = [];
+      var _n = true;
+      var _d = false;
+      var _e = undefined;
+
+      try {
+        for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+          _arr.push(_s.value);
+
+          if (i && _arr.length === i) break;
+        }
+      } catch (err) {
+        _d = true;
+        _e = err;
+      } finally {
+        try {
+          if (!_n && _i["return"]) _i["return"]();
+        } finally {
+          if (_d) throw _e;
+        }
+      }
+
+      return _arr;
+    }
+
+    return function (arr, i) {
+      if (Array.isArray(arr)) {
+        return arr;
+      } else if (Symbol.iterator in Object(arr)) {
+        return sliceIterator(arr, i);
+      } else {
+        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+      }
+    };
+  }();
+
   function plural(params /*, hash*/) {
-    return params;
+    var _params = _slicedToArray(params, 4),
+        count = _params[0],
+        zero = _params[1],
+        one = _params[2],
+        other = _params[3];
+
+    var result = count + ' ' + other;
+
+    if (count == 0) {
+      result = zero;
+    } else if (count == 1) {
+      result = one;
+    }
+    return result;
   }
 
   exports.default = Ember.Helper.helper(plural);
@@ -1238,33 +1290,58 @@ define('td1/routes/ex2', ['exports'], function (exports) {
   });
 
 
-  var Services = Ember.Object.extend({
-    countActive: Ember.computed('sevices.@each.active', function () {
-      return this.get('services').filterBy('count', true).length;
+  var Service = Ember.Object.extend({
+    countActive: Ember.computed('services.@each.active', function () {
+      return this.get('services').filterBy('active', true).length;
+    }),
+
+    sumActive: Ember.computed('services.$each.active', function () {
+      var total = 0;
+      var services = this.get('services').filterBy('active', true);
+      services.forEach(function (service) {
+        total += service.price;
+      });
+      return total;
+    }),
+    txRemise: Ember.computed('promo', function () {
+      var promo = this.get('promo');
+      var promos = this.get('promos');
+      return promos[promo] || ' ';
     })
   });
-
   exports.default = Ember.Route.extend({
     model: function model() {
-      return Services.create({ services: [{
+      return Service.create({
+        services: [{
           "name": "Web Development",
           "price": 300,
-          "active": false
+          "active": true
         }, {
           "name": "Design",
           "price": 400,
           "active": false
         }, {
+          "name": "Integration",
+          "price": 250,
+          "active": false
+        }, {
           "name": "Formation",
           "price": 220,
           "active": false
-        }] });
+        }],
+        promos: [{
+          "B22": 0.05,
+          "AZ": 0.01,
+          "UBOAT": 0.02
+        }]
+      });
     },
 
     actions: {
-      toggleActive: function toggleActive(service) {}
+      toggleActive: function toggleActive(service) {
+        Ember.set(service, "active", !service.active);
+      }
     }
-
   });
 });
 define('td1/services/ajax', ['exports', 'ember-ajax/services/ajax'], function (exports, _ajax) {
@@ -1315,7 +1392,7 @@ define("td1/templates/ex2", ["exports"], function (exports) {
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.default = Ember.HTMLBars.template({ "id": "i39D01dr", "block": "{\"symbols\":[\"service\"],\"statements\":[[6,\"div\"],[9,\"class\",\"list-group\"],[7],[0,\"\\n  \"],[6,\"div\"],[9,\"class\",\"list-group-item\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"list-group-item-heading\"],[7],[0,\"\\n      \"],[1,[25,\"plural\",[[20,[\"model\",\"countActive\"]],\"aucun service sélectionné\",\"un service sélectionné\",\"services sélectionnés\"],null],false],[0,\"\\n    \"],[8],[0,\"\\n  \"],[8],[0,\"\\n\"],[4,\"each\",[[20,[\"model\",\"sercives\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"list-group-item\"],[3,\"action\",[[19,0,[]],\"toogleActive\",[20,[\"sevice\"]]]],[7],[0,\"\\n      \"],[1,[19,1,[\"name\"]],false],[0,\"\\n      \"],[6,\"span\"],[9,\"class\",\"label label-default\"],[7],[1,[19,1,[\"price\"]],false],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[8]],\"hasEval\":false}", "meta": { "moduleName": "td1/templates/ex2.hbs" } });
+  exports.default = Ember.HTMLBars.template({ "id": "Euo+MjIm", "block": "{\"symbols\":[\"service\"],\"statements\":[[6,\"div\"],[9,\"class\",\"list-group\"],[7],[0,\"\\n  \"],[6,\"div\"],[9,\"class\",\"list-group-item\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"list-group-item-heading\"],[7],[0,\"\\n      \"],[1,[25,\"plural\",[[20,[\"model\",\"countActive\"]],\"aucun  service séléctionné\",\"un service séléctionné\",\"services sélectionnés\"],null],false],[0,\"\\n    \"],[8],[0,\"\\n  \"],[8],[0,\"\\n\"],[4,\"each\",[[20,[\"model\",\"services\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"list-group-item\"],[3,\"action\",[[19,0,[]],\"toggleActive\",[19,1,[]]]],[7],[0,\"\\n      \"],[1,[19,1,[\"name\"]],false],[0,\"\\n      \"],[6,\"span\"],[9,\"class\",\"label label-default\"],[7],[1,[19,1,[\"price\"]],false],[0,\" \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"  \"],[6,\"div\"],[9,\"class\",\"list-group\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"list-group-item\"],[7],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"list-group-item-info\"],[7],[0,\"\\n        \"],[1,[20,[\"model\",\"sumActive\"]],false],[0,\"\\n      \"],[8],[0,\"\\n    \"],[8],[0,\"\\n  \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "td1/templates/ex2.hbs" } });
 });
 
 

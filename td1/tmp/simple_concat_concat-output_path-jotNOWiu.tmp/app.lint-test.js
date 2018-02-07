@@ -27,6 +27,6 @@ QUnit.test('routes/ex1.js', function(assert) {
 
 QUnit.test('routes/ex2.js', function(assert) {
   assert.expect(1);
-  assert.ok(false, 'routes/ex2.js should pass ESLint\n\n6:15 - Use import { computed } from \'@ember/object\'; instead of using Ember.computed (ember/new-module-imports)\n30:27 - \'service\' is defined but never used. (no-unused-vars)');
+  assert.ok(false, 'routes/ex2.js should pass ESLint\n\n2:23 - \'computed\' is defined but never used. (no-unused-vars)\n3:10 - \'notEmpty\' is defined but never used. (no-unused-vars)\n6:15 - Use import { computed } from \'@ember/object\'; instead of using Ember.computed (ember/new-module-imports)\n6:15 - \'Ember\' is not defined. (no-undef)\n11:13 - Use import { computed } from \'@ember/object\'; instead of using Ember.computed (ember/new-module-imports)\n11:13 - \'Ember\' is not defined. (no-undef)\n18:12 - Use import { computed } from \'@ember/object\'; instead of using Ember.computed (ember/new-module-imports)\n18:12 - \'Ember\' is not defined. (no-undef)\n58:7 - Use import { set } from \'@ember/object\'; instead of using Ember.set (ember/new-module-imports)\n58:7 - \'Ember\' is not defined. (no-undef)');
 });
 
