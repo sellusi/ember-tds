@@ -1,23 +1,42 @@
-<div class = "list-group">
-  <div class="list-group-item">
-    <div class="list-group-item-heading">
-      {{plural model.countActive
-               "aucun  service séléctionné"
-               "un service séléctionné"
-               "services sélectionnés"}}
-    </div>
+<h1 class="text-center">Services</h1>
+<ul class="list-group">
+  <div class="alert alert-info">
+    {{plural model.countActive
+             "Aucun service sélectionné"
+             "un service sélectionné"
+             "services selectionnés"
+    }}
   </div>
-  {{#each model.services as |service| }}
-    <div class="list-group-item" {{action "toggleActive" service}}>
-      {{service.name}}
-      <span class="label label-default">{{service.price}} </span>
+  <div class="container-fluid">
+    {{#each model.services as |service|}}
+      <div class="row text-center">
+        <button class="alert alert-{{if service.active "success" "danger"}} text-center" {{action "toggleActive" service}} style="width: 100%">
+          {{service.name}}
+          <span class="label label-default">
+            {{format-currency service.price symbol=''}}
+          </span>
+        </button>
+      </div>
+    {{/each}}
+    <div class="row alert alert-info">
+      TOTAL : {{format-currency model.sumActive symbol=''}}
     </div>
-  {{/each}}
-  <div class = "list-group">
-    <div class="list-group-item">
-      <div class="list-group-item-info">
-        {{model.sumActive}}
+    <div class="row alert alert-info">
+      <div class="input-group">
+        <span class="input-group-addon">
+          <input id = "remise" type="checkbox" aria-label="...">
+        </span>
+        {{input value=model.promo type="text" class="form-control"}}
       </div>
     </div>
+    <div class="row alert alert-info">
+      Taux de remise : {{format-percent model.txRemise}}
+    </div>
+
+    <div class="row alert alert-info">
+      PRIX FINAL : {{format-currency model.prix}}
+    </div>
+
   </div>
-</div>
+
+</ul>

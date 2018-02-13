@@ -897,6 +897,34 @@ define('td1/helpers/cancel-all', ['exports', 'ember-concurrency/-helpers'], func
 
   exports.default = Ember.Helper.helper(cancelHelper);
 });
+define('td1/helpers/format-currency', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.formatCurrency = formatCurrency;
+  function formatCurrency(value, options /*, hash*/) {
+    var symbol = options.symbol || '€';
+
+    return value + ' ' + symbol;
+  }
+
+  exports.default = Ember.Helper.helper(formatCurrency);
+});
+define('td1/helpers/format-percent', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.formatPercent = formatPercent;
+  function formatPercent(value /*, hash*/) {
+    return value * 100 + '' + '%';
+  }
+
+  exports.default = Ember.Helper.helper(formatPercent);
+});
 define('td1/helpers/perform', ['exports', 'ember-concurrency/-helpers'], function (exports, _helpers) {
   'use strict';
 
@@ -964,11 +992,10 @@ define('td1/helpers/plural', ['exports'], function (exports) {
         other = _params[3];
 
     var result = count + ' ' + other;
-
     if (count == 0) {
       result = zero;
     } else if (count == 1) {
-      result = one;
+      result == one;
     }
     return result;
   }
@@ -1245,41 +1272,43 @@ define('td1/routes/ex1', ['exports'], function (exports) {
 
 
   var Note = Ember.Object.extend({
-    alertVisible: Ember.computed.notEmpty('info'),
     size: Ember.computed('content', function () {
       var content = this.get('content');
       if (content) this.set('info', 'Note modifiée');
       var MAX = this.get('MAX');
       return MAX - content.length;
     }),
+
     style: Ember.computed('size', function () {
       var size = this.get('size');
-      var style = 'alert-info';
-      if (size < 50) style = 'alert-warning';
-      if (size < 20) style = 'alert-danger';
+      var style = 'info';
+      if (size < 50) style = 'warning';
+      if (size < 20) style = 'danger';
       return style;
+    }),
+    alertVisible: Ember.computed('size', function () {
+      var size = this.get('size');
+      if (size == 100) return false;else return true;
     })
   });
 
   exports.default = Ember.Route.extend({
     model: function model() {
       return Note.create({
-        MAX: 100,
         content: '',
-        placeholder: 'Entrez votre texte'
+        MAX: 100
       });
-    },
-
+    }
+  }, {
     actions: {
-      save: function save(model) {
-        model.set('info', 'Note sauvegard\xE9e <b>' + model.get('content') + '</b>');
-      },
       clear: function clear(model) {
         model.set('content', '');
-        model.set('info', '');
+      },
+
+      save: function save(model) {
+        model.set('info', 'Note sauvegard\xE9e : <b>' + model.get('content') + '</b>');
       }
     }
-
   });
 });
 define('td1/routes/ex2', ['exports'], function (exports) {
@@ -1290,28 +1319,42 @@ define('td1/routes/ex2', ['exports'], function (exports) {
   });
 
 
-  var Service = Ember.Object.extend({
+  var Services = Ember.Object.extend({
     countActive: Ember.computed('services.@each.active', function () {
       return this.get('services').filterBy('active', true).length;
     }),
-
-    sumActive: Ember.computed('services.$each.active', function () {
-      var total = 0;
-      var services = this.get('services').filterBy('active', true);
-      services.forEach(function (service) {
-        total += service.price;
+    sumActive: Ember.computed('services.@each.active', function () {
+      var somme = 0;
+      var prix = this.get('services').filterBy('active', true);
+      prix.forEach(function (service) {
+        somme += service.price;
       });
-      return total;
+      return somme;
     }),
     txRemise: Ember.computed('promo', function () {
       var promo = this.get('promo');
       var promos = this.get('promos');
-      return promos[promo] || ' ';
+      if (promos[promo]) {
+        document.getElementById("remise").checked = true;
+        return promos[promo];
+      } else {
+        document.getElementById("remise").checked = false;
+      }
+    }),
+    prix: Ember.computed('sumActive', 'txRemise', function () {
+      var total = this.get('sumActive');
+      var remise = this.get('txRemise');
+      if (remise != null && document.getElementById("remise").checked) {
+        return total - total * remise;
+      } else {
+        return total;
+      }
     })
   });
+
   exports.default = Ember.Route.extend({
     model: function model() {
-      return Service.create({
+      return Services.create({
         services: [{
           "name": "Web Development",
           "price": 300,
@@ -1329,17 +1372,17 @@ define('td1/routes/ex2', ['exports'], function (exports) {
           "price": 220,
           "active": false
         }],
-        promos: [{
+        promos: {
           "B22": 0.05,
           "AZ": 0.01,
           "UBOAT": 0.02
-        }]
+        }
       });
     },
 
     actions: {
       toggleActive: function toggleActive(service) {
-        Ember.set(service, "active", !service.active);
+        Ember.set(service, 'active', !service.active);
       }
     }
   });
@@ -1392,7 +1435,7 @@ define("td1/templates/ex2", ["exports"], function (exports) {
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.default = Ember.HTMLBars.template({ "id": "Euo+MjIm", "block": "{\"symbols\":[\"service\"],\"statements\":[[6,\"div\"],[9,\"class\",\"list-group\"],[7],[0,\"\\n  \"],[6,\"div\"],[9,\"class\",\"list-group-item\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"list-group-item-heading\"],[7],[0,\"\\n      \"],[1,[25,\"plural\",[[20,[\"model\",\"countActive\"]],\"aucun  service séléctionné\",\"un service séléctionné\",\"services sélectionnés\"],null],false],[0,\"\\n    \"],[8],[0,\"\\n  \"],[8],[0,\"\\n\"],[4,\"each\",[[20,[\"model\",\"services\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"list-group-item\"],[3,\"action\",[[19,0,[]],\"toggleActive\",[19,1,[]]]],[7],[0,\"\\n      \"],[1,[19,1,[\"name\"]],false],[0,\"\\n      \"],[6,\"span\"],[9,\"class\",\"label label-default\"],[7],[1,[19,1,[\"price\"]],false],[0,\" \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"  \"],[6,\"div\"],[9,\"class\",\"list-group\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"list-group-item\"],[7],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"list-group-item-info\"],[7],[0,\"\\n        \"],[1,[20,[\"model\",\"sumActive\"]],false],[0,\"\\n      \"],[8],[0,\"\\n    \"],[8],[0,\"\\n  \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "td1/templates/ex2.hbs" } });
+  exports.default = Ember.HTMLBars.template({ "id": "aADX8zw/", "block": "{\"symbols\":[\"service\"],\"statements\":[[6,\"h1\"],[9,\"class\",\"text-center\"],[7],[0,\"Services\"],[8],[0,\"\\n\"],[6,\"ul\"],[9,\"class\",\"list-group\"],[7],[0,\"\\n  \"],[6,\"div\"],[9,\"class\",\"alert alert-info\"],[7],[0,\"\\n    \"],[1,[25,\"plural\",[[20,[\"model\",\"countActive\"]],\"Aucun service sélectionné\",\"un service sélectionné\",\"services selectionnés\"],null],false],[0,\"\\n  \"],[8],[0,\"\\n  \"],[6,\"div\"],[9,\"class\",\"container-fluid\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"model\",\"services\"]]],null,{\"statements\":[[0,\"      \"],[6,\"div\"],[9,\"class\",\"row text-center\"],[7],[0,\"\\n        \"],[6,\"button\"],[10,\"class\",[26,[\"alert alert-\",[25,\"if\",[[19,1,[\"active\"]],\"success\",\"danger\"],null],\" text-center\"]]],[9,\"style\",\"width: 100%\"],[3,\"action\",[[19,0,[]],\"toggleActive\",[19,1,[]]]],[7],[0,\"\\n          \"],[1,[19,1,[\"name\"]],false],[0,\"\\n          \"],[6,\"span\"],[9,\"class\",\"label label-default\"],[7],[0,\"\\n            \"],[1,[25,\"format-currency\",[[19,1,[\"price\"]]],[[\"symbol\"],[\"\"]]],false],[0,\"\\n          \"],[8],[0,\"\\n        \"],[8],[0,\"\\n      \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"],[6,\"div\"],[9,\"class\",\"row alert alert-info\"],[7],[0,\"\\n      TOTAL : \"],[1,[25,\"format-currency\",[[20,[\"model\",\"sumActive\"]]],[[\"symbol\"],[\"\"]]],false],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row alert alert-info\"],[7],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"input-group\"],[7],[0,\"\\n        \"],[6,\"span\"],[9,\"class\",\"input-group-addon\"],[7],[0,\"\\n          \"],[6,\"input\"],[9,\"id\",\"remise\"],[9,\"type\",\"checkbox\"],[9,\"aria-label\",\"...\"],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[1,[25,\"input\",null,[[\"value\",\"type\",\"class\"],[[20,[\"model\",\"promo\"]],\"text\",\"form-control\"]]],false],[0,\"\\n      \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row alert alert-info\"],[7],[0,\"\\n      Taux de remise : \"],[1,[25,\"format-percent\",[[20,[\"model\",\"txRemise\"]]],null],false],[0,\"\\n    \"],[8],[0,\"\\n\\n    \"],[6,\"div\"],[9,\"class\",\"row alert alert-info\"],[7],[0,\"\\n      PRIX FINAL : \"],[1,[25,\"format-currency\",[[20,[\"model\",\"prix\"]]],null],false],[0,\"\\n    \"],[8],[0,\"\\n\\n  \"],[8],[0,\"\\n\\n\"],[8],[0,\"\\n\"]],\"hasEval\":false}", "meta": { "moduleName": "td1/templates/ex2.hbs" } });
 });
 
 
@@ -1416,6 +1459,6 @@ catch(err) {
 });
 
 if (!runningTests) {
-  require("td1/app")["default"].create({"name":"td1","version":"0.0.0+81dcece9"});
+  require("td1/app")["default"].create({"name":"td1","version":"0.0.0+21dead6d"});
 }
 //# sourceMappingURL=td1.map

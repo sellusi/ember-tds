@@ -1,0 +1,8 @@
+.pop {
+  -webkit-transition: width 2s; /* For Safari 3.1 to 6.0 */
+  transition: opacity 1s;
+}
+
+.pop:hover {
+  opacity: 1;
+}
